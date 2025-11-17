@@ -4,10 +4,9 @@ resource "aws_apigatewayv2_api" "api" {
 
   cors_configuration {
     allow_origins = [
-      "https://cet.lightspeeddev.cloud",
-      "https://cet.lightspeedstage.cloud",
-      "https://cet.lightspeeddms.cloud",
-      "http://localhost:5173"
+      "https://onpointgaragedoors.com",
+      "https://www.onpointgaragedoors.com",
+      "http://localhost:5173",
     ]
     allow_methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
     allow_headers = ["*"]
