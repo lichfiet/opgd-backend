@@ -1,0 +1,7 @@
+# Copy this file to terraform.tfvars and fill in your values
+
+aws_region          = "us-west-1"
+environment         = "prod"
+admin_password      = "your_secure_password_here"
+ses_sender_email    = "noreply@onpointgaragedoors.com"
+ses_recipient_email = "info@onpointgaragedoors.com"

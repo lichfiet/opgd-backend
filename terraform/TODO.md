@@ -1,0 +1,12 @@
+## TODO
+- Cloudfront
+    - Make sure AWS Shield is enabled
+    - Origins
+        - S3 Origin
+        - Lambda Origin
+    - Caching
+- S3 Bucket
+    - Image Storage
+- DynamoDB
+    - Image Ref Storage
+- Lambda
