@@ -1,7 +1,7 @@
 resource "aws_dynamodb_table" "images_content" {
-  name           = "opgd-images-content"
-  billing_mode   = "PAY_PER_REQUEST"
-  hash_key       = "uuid"
+  name         = "opgd-images-content"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "uuid"
 
   attribute {
     name = "uuid"
