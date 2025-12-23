@@ -9,7 +9,7 @@ from botocore.exceptions import ClientError
 logger = logging.getLogger(__name__)
 
 # S3 Bucket Name from environment
-BUCKET_NAME = os.getenv("S3_BUCKET_NAME", "opgd-images-content")
+BUCKET_NAME = os.getenv("S3_BUCKET_NAME", "opgd-images-content-prod")
 
 # Initialize S3 client
 s3_client = boto3.client("s3")

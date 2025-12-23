@@ -6,7 +6,7 @@ from ._router import router
 from .models import Images, Image
 from shared.db.models import ImageItem
 from shared.s3.models import S3Storage
-from shared.auth.middleware import verify_admin_password
+from security.api_key import verify_api_key
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +29,7 @@ async def get_images() -> Images:
             detail="Failed to fetch images"
         )
 
-@router.post("/image", status_code=status.HTTP_201_CREATED, dependencies=[Depends(verify_admin_password)])
+@router.post("/image", status_code=status.HTTP_201_CREATED, dependencies=[Depends(verify_api_key)])
 async def upload_image(
     file: UploadFile = File(...),
     description: str = Form(...),
@@ -86,7 +86,7 @@ async def upload_image(
             detail="Failed to upload image"
         )
 
-@router.delete("/image/{image_id}", status_code=status.HTTP_200_OK, dependencies=[Depends(verify_admin_password)])
+@router.delete("/image/{image_id}", status_code=status.HTTP_200_OK, dependencies=[Depends(verify_api_key)])
 async def delete_image(image_id: str) -> dict:
     """
     Delete image endpoint (requires admin authentication).

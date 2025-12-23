@@ -6,7 +6,7 @@ from fastapi import HTTPException, status, Depends
 from ._router import router
 from .models import Manifest, Image
 from shared.db.models import ImageItem
-from shared.auth.middleware import verify_admin_password
+from security.api_key import verify_api_key
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +59,7 @@ async def get_manifest() -> Manifest:
             detail="Failed to fetch manifest"
         )
 
-@router.put("/manifest/{image_id}", status_code=status.HTTP_200_OK, dependencies=[Depends(verify_admin_password)])
+@router.put("/manifest/{image_id}", status_code=status.HTTP_200_OK, dependencies=[Depends(verify_api_key)])
 async def update_manifest_image(
     image_id: str,
     description: Optional[str] = None,
@@ -107,7 +107,7 @@ async def update_manifest_image(
             detail="Failed to update manifest image"
         )
 
-@router.delete("/manifest/{image_id}", status_code=status.HTTP_200_OK, dependencies=[Depends(verify_admin_password)])
+@router.delete("/manifest/{image_id}", status_code=status.HTTP_200_OK, dependencies=[Depends(verify_api_key)])
 async def delete_manifest_image(image_id: str) -> dict:
     """
     Delete manifest image endpoint (requires admin authentication).

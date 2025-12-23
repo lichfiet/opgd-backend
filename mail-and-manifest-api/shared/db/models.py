@@ -14,7 +14,7 @@ TABLE_NAME = os.getenv("DYNAMODB_TABLE_NAME", "opgd-images-content")
 
 # Initialize DynamoDB resource
 dynamodb = boto3.resource("dynamodb")
-table = dynamodb.Table(TABLE_NAME)
+table = dynamodb.Table(TABLE_NAME) # type: ignore
 
 
 class ImageItem:
