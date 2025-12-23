@@ -98,6 +98,20 @@ class S3Storage:
             raise
 
     @staticmethod
+    def get_public_url(s3_path: str) -> str:
+        """
+        Generate a public URL for an S3 object.
+
+        Args:
+            s3_path: S3 object key
+
+        Returns:
+            str: Public S3 URL
+        """
+        region = s3_client.meta.region_name
+        return f"https://{BUCKET_NAME}.s3.{region}.amazonaws.com/{s3_path}"
+
+    @staticmethod
     def image_exists(s3_path: str) -> bool:
         """
         Check if an image exists in S3.

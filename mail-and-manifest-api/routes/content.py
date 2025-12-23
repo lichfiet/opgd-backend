@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 from fastapi import HTTPException, UploadFile, File, Form, Depends, status
 
@@ -10,18 +11,29 @@ from security.api_key import verify_api_key
 
 logger = logging.getLogger(__name__)
 
-@router.get("/images", response_model=Images)
-async def get_images() -> Images:
+@router.get("/images")
+async def get_images() -> dict:
     """
-    Get all images endpoint.
+    Get all images endpoint with public URLs.
 
     Returns:
-        Images: List of all images
+        dict: List of all images with their public S3 URLs
     """
     try:
         items = ImageItem.get_all_images()
-        images = [Image(**item) for item in items]
-        return Images(images=images)
+
+        # Add public URLs to each image
+        images_with_urls = []
+        for item in items:
+            image_data = {
+                **item,
+                "url": S3Storage.get_public_url(item["s3_path"])
+            }
+            images_with_urls.append(image_data)
+
+        return {
+            "images": images_with_urls
+        }
     except Exception as e:
         logger.error(f"Error fetching images: {str(e)}")
         raise HTTPException(
@@ -29,11 +41,48 @@ async def get_images() -> Images:
             detail="Failed to fetch images"
         )
 
+@router.get("/image/{image_id}")
+async def get_image(image_id: str) -> dict:
+    """
+    Get a single image by ID.
+
+    Args:
+        image_id: UUID of image to retrieve
+
+    Returns:
+        dict: Image record with presigned URL
+    """
+    try:
+        image_record = ImageItem.get_image(image_id)
+        if not image_record:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Image not found"
+            )
+
+        # Generate public S3 URL
+        url = S3Storage.get_public_url(image_record["s3_path"])
+
+        return {
+            "status": "success",
+            "image": Image(**image_record),
+            "url": url
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching image: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to fetch image"
+        )
+
 @router.post("/image", status_code=status.HTTP_201_CREATED, dependencies=[Depends(verify_api_key)])
 async def upload_image(
     file: UploadFile = File(...),
     description: str = Form(...),
-    tags: list[str] = Form([])
+    tags: str = Form(...)
 ) -> dict:
     """
     Upload image endpoint (requires admin authentication).
@@ -41,10 +90,10 @@ async def upload_image(
     Args:
         file: Image file to upload
         description: Image description
-        tags: List of tags for categorization
+        tags: Comma-separated list of tags (e.g., "featured,doors")
 
     Returns:
-        dict: Created image record
+        dict: Created image record with presigned URL
     """
     try:
         # Validate file type
@@ -52,6 +101,15 @@ async def upload_image(
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="File must be an image"
+            )
+
+        # Parse tags from comma-separated string
+        tag_list = [tag.strip().lower() for tag in tags.split(",") if tag.strip()]
+
+        if not tag_list:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="At least one tag is required"
             )
 
         # Read file content
@@ -68,13 +126,17 @@ async def upload_image(
         image_record = ImageItem.create_image(
             s3_path=s3_path,
             description=description,
-            tags=tags
+            tags=tag_list
         )
+
+        # Generate public S3 URL for immediate access
+        url = S3Storage.get_public_url(s3_path)
 
         return {
             "status": "success",
             "message": "Image uploaded successfully",
-            "image": Image(**image_record)
+            "image": Image(**image_record),
+            "url": url
         }
 
     except HTTPException:
@@ -84,6 +146,64 @@ async def upload_image(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to upload image"
+        )
+
+@router.put("/image/{image_id}", status_code=status.HTTP_200_OK, dependencies=[Depends(verify_api_key)])
+async def update_image(
+    image_id: str,
+    description: Optional[str] = Form(None),
+    tags: Optional[str] = Form(None)
+) -> dict:
+    """
+    Update image metadata (requires admin authentication).
+
+    Args:
+        image_id: UUID of image to update
+        description: New description (optional)
+        tags: New comma-separated tags (optional)
+
+    Returns:
+        dict: Updated image record
+    """
+    try:
+        # Verify image exists
+        existing = ImageItem.get_image(image_id)
+        if not existing:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Image not found"
+            )
+
+        # Parse tags if provided
+        tag_list = None
+        if tags is not None:
+            tag_list = [tag.strip().lower() for tag in tags.split(",") if tag.strip()]
+            if not tag_list:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="If tags are provided, at least one tag is required"
+                )
+
+        # Update image
+        updated_image = ImageItem.update_image(
+            image_id=image_id,
+            description=description,
+            tags=tag_list
+        )
+
+        return {
+            "status": "success",
+            "message": "Image updated successfully",
+            "image": Image(**updated_image)
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating image: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to update image"
         )
 
 @router.delete("/image/{image_id}", status_code=status.HTTP_200_OK, dependencies=[Depends(verify_api_key)])

@@ -1,12 +1,10 @@
 import logging
-from typing import Optional
 
-from fastapi import HTTPException, status, Depends
+from fastapi import HTTPException, status
 
 from ._router import router
 from .models import Manifest, Image
 from shared.db.models import ImageItem
-from security.api_key import verify_api_key
 
 logger = logging.getLogger(__name__)
 
@@ -57,95 +55,4 @@ async def get_manifest() -> Manifest:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to fetch manifest"
-        )
-
-@router.put("/manifest/{image_id}", status_code=status.HTTP_200_OK, dependencies=[Depends(verify_api_key)])
-async def update_manifest_image(
-    image_id: str,
-    description: Optional[str] = None,
-    tags: Optional[list[str]] = None
-) -> dict:
-    """
-    Update manifest image endpoint (requires admin authentication).
-
-    Args:
-        image_id: UUID of image to update
-        description: New description (optional)
-        tags: New tags list (optional)
-
-    Returns:
-        dict: Updated image record
-    """
-    try:
-        # Verify image exists
-        existing = ImageItem.get_image(image_id)
-        if not existing:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Image not found"
-            )
-
-        # Update image
-        updated_image = ImageItem.update_image(
-            image_id=image_id,
-            description=description,
-            tags=tags
-        )
-
-        return {
-            "status": "success",
-            "message": "Image updated successfully",
-            "image": Image(**updated_image)
-        }
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error updating manifest image: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to update manifest image"
-        )
-
-@router.delete("/manifest/{image_id}", status_code=status.HTTP_200_OK, dependencies=[Depends(verify_api_key)])
-async def delete_manifest_image(image_id: str) -> dict:
-    """
-    Delete manifest image endpoint (requires admin authentication).
-
-    Args:
-        image_id: UUID of image to delete
-
-    Returns:
-        dict: Success response
-    """
-    try:
-        # Get image record to find S3 path
-        image_record = ImageItem.get_image(image_id)
-        if not image_record:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Image not found"
-            )
-
-        # Import S3Storage here to avoid circular import
-        from shared.s3.models import S3Storage
-
-        # Delete from S3
-        S3Storage.delete_image(image_record["s3_path"])
-
-        # Delete from database
-        ImageItem.delete_image(image_id)
-
-        return {
-            "status": "success",
-            "message": "Manifest image deleted successfully"
-        }
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error deleting manifest image: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to delete manifest image"
         )
