@@ -1,18 +1,9 @@
-resource "aws_apigatewayv2_api" "api" {
-  name          = "opgd-mail-manifest-api-${var.environment}"
-  protocol_type = "HTTP"
+resource "aws_api_gateway_rest_api" "api" {
+  name        = "opgd-mail-manifest-api-${var.environment}"
+  description = "OPGD Mail & Manifest API"
 
-  cors_configuration {
-    allow_origins = [
-      "https://onpointgaragedoors.com",
-      "https://www.onpointgaragedoors.com",
-      "http://localhost:5173",
-    ]
-    allow_methods     = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-    allow_headers     = ["*"]
-    expose_headers    = ["*"]
-    max_age           = 3600
-    allow_credentials = true
+  endpoint_configuration {
+    types = ["REGIONAL"]
   }
 
   tags = {
@@ -22,23 +13,73 @@ resource "aws_apigatewayv2_api" "api" {
   }
 }
 
-resource "aws_apigatewayv2_integration" "lambda" {
-  api_id                 = aws_apigatewayv2_api.api.id
-  integration_type       = "AWS_PROXY"
-  integration_uri        = aws_lambda_function.api.invoke_arn
-  payload_format_version = "2.0"
+resource "aws_api_gateway_resource" "proxy" {
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  parent_id   = aws_api_gateway_rest_api.api.root_resource_id
+  path_part   = "{proxy+}"
 }
 
-resource "aws_apigatewayv2_route" "default" {
-  api_id    = aws_apigatewayv2_api.api.id
-  route_key = "$default"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
+resource "aws_api_gateway_method" "proxy" {
+  rest_api_id   = aws_api_gateway_rest_api.api.id
+  resource_id   = aws_api_gateway_resource.proxy.id
+  http_method   = "ANY"
+  authorization = "NONE"
 }
 
-resource "aws_apigatewayv2_stage" "default" {
-  api_id      = aws_apigatewayv2_api.api.id
-  name        = "$default"
-  auto_deploy = true
+resource "aws_api_gateway_method" "proxy_root" {
+  rest_api_id   = aws_api_gateway_rest_api.api.id
+  resource_id   = aws_api_gateway_rest_api.api.root_resource_id
+  http_method   = "ANY"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "lambda" {
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  resource_id = aws_api_gateway_method.proxy.resource_id
+  http_method = aws_api_gateway_method.proxy.http_method
+
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.api.invoke_arn
+}
+
+resource "aws_api_gateway_integration" "lambda_root" {
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  resource_id = aws_api_gateway_method.proxy_root.resource_id
+  http_method = aws_api_gateway_method.proxy_root.http_method
+
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.api.invoke_arn
+}
+
+resource "aws_api_gateway_deployment" "api" {
+  depends_on = [
+    aws_api_gateway_integration.lambda,
+    aws_api_gateway_integration.lambda_root,
+  ]
+
+  rest_api_id = aws_api_gateway_rest_api.api.id
+
+  triggers = {
+    redeployment = sha1(jsonencode([
+      aws_api_gateway_resource.proxy.id,
+      aws_api_gateway_method.proxy.id,
+      aws_api_gateway_method.proxy_root.id,
+      aws_api_gateway_integration.lambda.id,
+      aws_api_gateway_integration.lambda_root.id,
+    ]))
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_api_gateway_stage" "api" {
+  deployment_id = aws_api_gateway_deployment.api.id
+  rest_api_id   = aws_api_gateway_rest_api.api.id
+  stage_name    = var.environment
 
   tags = {
     Name        = "OPGD API Stage"
@@ -52,5 +93,5 @@ resource "aws_lambda_permission" "api_gateway" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.api.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_apigatewayv2_api.api.execution_arn}/*/*"
+  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
 }

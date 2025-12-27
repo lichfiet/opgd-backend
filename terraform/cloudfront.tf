@@ -14,8 +14,9 @@ resource "aws_cloudfront_distribution" "main" {
 
   # API Gateway Origin
   origin {
-    domain_name = replace(aws_apigatewayv2_api.api.api_endpoint, "https://", "")
+    domain_name = replace(aws_api_gateway_stage.api.invoke_url, "https://", "")
     origin_id   = "APIGateway"
+    origin_path = ""
 
     custom_origin_config {
       http_port              = 80

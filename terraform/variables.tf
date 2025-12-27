@@ -10,10 +10,16 @@ variable "environment" {
   default     = "prod"
 }
 
-variable "admin_password" {
-  description = "Admin password for API authentication"
+variable "admin_api_key" {
+  description = "Admin API key for authenticated endpoints"
   type        = string
   sensitive   = true
+}
+
+variable "cloudfront_domain" {
+  description = "CloudFront distribution domain (optional, for image URLs)"
+  type        = string
+  default     = ""
 }
 
 variable "ses_sender_email" {

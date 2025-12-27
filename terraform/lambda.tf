@@ -16,12 +16,10 @@ resource "aws_lambda_function" "api" {
       S3_BUCKET_NAME      = aws_s3_bucket.images_content.bucket
       SES_SENDER_EMAIL    = var.ses_sender_email
       SES_RECIPIENT_EMAIL = var.ses_recipient_email
-      ADMIN_PASSWORD      = var.admin_password
+      AWS_REGION          = var.aws_region
+      ADMIN_API_KEY       = var.admin_api_key
+      CLOUDFRONT_DOMAIN   = var.cloudfront_domain
     }
-  }
-
-  tags = {
-    env = var.environment
   }
 }
 

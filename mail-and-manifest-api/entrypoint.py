@@ -25,16 +25,16 @@ server = FastAPI(
 server.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://cet.lightspeeddev.cloud",
-        "https://cet.lightspeedstage.cloud",
-        "https://cet.lightspeeddms.cloud",
+        "https://onpointgaragedoors.com",
+        "https://www.onpointgaragedoors.com",
+        "https://main.d2zc31p60frx1d.amplifyapp.com",
         "http://localhost:5173"
     ],
     allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods (GET, POST, PUT, DELETE, etc.)
-    allow_headers=["*"],  # Allows all headers
-    expose_headers=["*"],  # Expose all headers to the client
-    max_age=3600,  # Cache preflight requests for 1 hour
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "X-API-KEY"],
+    expose_headers=["*"],
+    max_age=3600,
 )
 
 #
