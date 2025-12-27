@@ -24,13 +24,14 @@ class Image(BaseModel):
     tags: list[str]
     s3_path: str
     description: str
+    url: Optional[str] = None
 
 class Images(BaseModel):
     images: list[Image]
 
 class Manifest(BaseModel):
     featured: list[Image]
-    doors: list[Image]
+    doorInstall: list[Image]
     openers: list[Image]
     gates: list[Image]
-    custom: list[Image]
+    customWork: list[Image]

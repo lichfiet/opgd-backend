@@ -11,6 +11,9 @@ logger = logging.getLogger(__name__)
 # S3 Bucket Name from environment
 BUCKET_NAME = os.getenv("S3_BUCKET_NAME", "opgd-images-content-prod")
 
+# CloudFront domain from environment
+CLOUDFRONT_DOMAIN = os.getenv("CLOUDFRONT_DOMAIN", None)
+
 # Initialize S3 client
 s3_client = boto3.client("s3")
 
@@ -101,13 +104,17 @@ class S3Storage:
     def get_public_url(s3_path: str) -> str:
         """
         Generate a public URL for an S3 object.
+        If CLOUDFRONT_DOMAIN is set, returns CloudFront URL, otherwise returns direct S3 URL.
 
         Args:
             s3_path: S3 object key
 
         Returns:
-            str: Public S3 URL
+            str: Public URL (CloudFront or S3)
         """
+        if CLOUDFRONT_DOMAIN:
+            return f"https://{CLOUDFRONT_DOMAIN}/{s3_path}"
+
         region = s3_client.meta.region_name
         return f"https://{BUCKET_NAME}.s3.{region}.amazonaws.com/{s3_path}"
 
