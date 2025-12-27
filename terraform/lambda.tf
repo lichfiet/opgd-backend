@@ -16,15 +16,12 @@ resource "aws_lambda_function" "api" {
       S3_BUCKET_NAME      = aws_s3_bucket.images_content.bucket
       SES_SENDER_EMAIL    = var.ses_sender_email
       SES_RECIPIENT_EMAIL = var.ses_recipient_email
-      AWS_REGION          = var.aws_region
       ADMIN_PASSWORD      = var.admin_password
     }
   }
 
   tags = {
-    Name        = "OPGD Mail & Manifest API"
-    Environment = var.environment
-    Project     = "On Point Garage Doors"
+    env = var.environment
   }
 }
 
