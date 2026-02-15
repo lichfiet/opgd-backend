@@ -35,3 +35,4 @@ class Manifest(BaseModel):
     openers: list[Image]
     gates: list[Image]
     customWork: list[Image]
+    commercial: list[Image]

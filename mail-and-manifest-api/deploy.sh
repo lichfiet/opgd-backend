@@ -19,7 +19,7 @@ pip install -r requirements.txt -t package/ --quiet
 
 # Copy application code
 echo "📋 Copying application code..."
-cp -r routes shared entrypoint.py package/
+cp -r routes shared security entrypoint.py package/
 
 # Create zip file
 echo "🗜️  Creating zip archive..."

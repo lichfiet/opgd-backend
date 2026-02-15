@@ -15,7 +15,7 @@ async def get_manifest() -> Manifest:
     Get manifest endpoint - returns images grouped by category.
 
     Returns:
-        Manifest: Images organized by category (featured, doors, openers, gates, custom)
+        Manifest: Images organized by category (featured, doors, openers, gates, custom, commercial)
     """
     try:
         # Get all images from database
@@ -27,6 +27,7 @@ async def get_manifest() -> Manifest:
         openers = []
         gates = []
         custom_work = []
+        commercial = []
 
         for item in items:
             # Add public URL to image
@@ -45,13 +46,16 @@ async def get_manifest() -> Manifest:
                 gates.append(image)
             if "custom" in tags:
                 custom_work.append(image)
+            if "commercial" in tags:
+                commercial.append(image)
 
         return Manifest(
             featured=featured,
             doorInstall=door_install,
             openers=openers,
             gates=gates,
-            customWork=custom_work
+            customWork=custom_work,
+            commercial=commercial
         )
 
     except Exception as e:
