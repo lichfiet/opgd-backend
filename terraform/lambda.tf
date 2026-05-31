@@ -12,12 +12,13 @@ resource "aws_lambda_function" "api" {
 
   environment {
     variables = {
-      DYNAMODB_TABLE_NAME = aws_dynamodb_table.images_content.name
-      S3_BUCKET_NAME      = aws_s3_bucket.images_content.bucket
-      SES_SENDER_EMAIL    = var.ses_sender_email
-      SES_RECIPIENT_EMAIL = var.ses_recipient_email
-      ADMIN_API_KEY       = var.admin_api_key
-      CLOUDFRONT_DOMAIN   = var.cloudfront_domain
+      DYNAMODB_TABLE_NAME   = aws_dynamodb_table.images_content.name
+      S3_BUCKET_NAME        = aws_s3_bucket.images_content.bucket
+      SES_SENDER_EMAIL      = var.ses_sender_email
+      SES_RECIPIENT_EMAIL   = var.ses_recipient_email
+      ADMIN_API_KEY         = var.admin_api_key
+      CLOUDFRONT_DOMAIN     = var.cloudfront_domain
+      RECAPTCHA_SECRET_KEY  = var.recaptcha_secret_key
     }
   }
 }

@@ -4,4 +4,5 @@ aws_region          = "us-west-1"
 environment         = "prod"
 admin_password      = "your_secure_password_here"
 ses_sender_email    = "noreply@onpointgaragedoors.com"
-ses_recipient_email = "info@onpointgaragedoors.com"
+ses_recipient_email   = "info@onpointgaragedoors.com"
+recaptcha_secret_key  = ""  # reCAPTCHA v3 secret from https://www.google.com/recaptcha/admin (leave empty to disable)

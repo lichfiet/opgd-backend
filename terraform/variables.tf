@@ -33,3 +33,10 @@ variable "ses_recipient_email" {
   type        = string
   default     = "info@onpointgaragedoors.com"
 }
+
+variable "recaptcha_secret_key" {
+  description = "reCAPTCHA v3 secret key for contact form (leave empty to disable)"
+  type        = string
+  default     = ""
+  sensitive   = true
+}

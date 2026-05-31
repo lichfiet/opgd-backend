@@ -42,7 +42,7 @@ server.add_middleware(
 #
 handler = Mangum(
     app=server,
-    api_gateway_base_path='/',
+    api_gateway_base_path='/prod',
     lifespan="off"
     )
 

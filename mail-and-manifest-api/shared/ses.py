@@ -9,7 +9,7 @@ from botocore.exceptions import ClientError
 logger = logging.getLogger(__name__)
 
 # SES Configuration from environment
-SENDER_EMAIL = os.getenv("SES_SENDER_EMAIL", "noreply@onpointgaragedoors.com")
+SENDER_EMAIL = os.getenv("SES_SENDER_EMAIL", "onpointgaragedoors-forwarding@trevorlichfield.com")
 RECIPIENT_EMAIL = os.getenv("SES_RECIPIENT_EMAIL", "info@onpointgaragedoors.com")
 
 # Initialize SES client

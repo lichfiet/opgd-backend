@@ -10,6 +10,7 @@ class ContactRequest(BaseModel):
     phone: Optional[str]
     service: str
     message: Optional[str]
+    recaptcha_token: Optional[str] = None
 
 #
 # Manifests & Images
