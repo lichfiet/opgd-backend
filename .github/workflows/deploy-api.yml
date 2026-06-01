@@ -1,0 +1,69 @@
+name: deploy-api
+
+# Deploys the FastAPI Lambda on pushes to main that touch API code.
+# Auth: GitHub OIDC -> ci-opgd-backend-prod role (no stored AWS keys).
+# The role can ONLY update/invoke this one Lambda function.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "mail-and-manifest-api/**"
+      - ".github/workflows/deploy-api.yml"
+  workflow_dispatch:
+
+permissions:
+  id-token: write # required to mint the OIDC token
+  contents: read
+
+env:
+  FUNCTION_NAME: opgd-mail-manifest-api-prod
+  AWS_REGION: us-west-1
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11" # matches the Lambda runtime
+
+      - name: build deployment package
+        working-directory: mail-and-manifest-api
+        run: |
+          rm -rf package deployment.zip
+          mkdir -p package
+          pip install -r requirements.txt -t package/ --quiet
+          cp -r routes shared security entrypoint.py package/
+          cd package && zip -r ../deployment.zip . -q
+
+      - uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: arn:aws:iam::349654078389:role/ci-opgd-backend-prod
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: update lambda code
+        working-directory: mail-and-manifest-api
+        run: |
+          aws lambda update-function-code \
+            --function-name "$FUNCTION_NAME" \
+            --zip-file fileb://deployment.zip \
+            --publish \
+            --output json | jq -r '"Deployed version: " + .Version'
+
+      - name: smoke test
+        run: |
+          aws lambda wait function-updated --function-name "$FUNCTION_NAME"
+          # Payload written via printf (not heredoc/inline) to avoid invisible
+          # unicode characters breaking JSON parsing.
+          printf '%s' '{"resource":"/{proxy+}","path":"/health","httpMethod":"GET","headers":{},"requestContext":{"resourcePath":"/{proxy+}","httpMethod":"GET","path":"/prod/health"},"body":null,"isBase64Encoded":false}' > /tmp/payload.json
+          aws lambda invoke \
+            --function-name "$FUNCTION_NAME" \
+            --payload file:///tmp/payload.json \
+            --cli-binary-format raw-in-base64-out \
+            /tmp/out.json
+          cat /tmp/out.json
+          # Fail the job if the function returned an error
+          python3 -c "import json,sys; r=json.load(open('/tmp/out.json')); sys.exit(0 if r.get('statusCode',500) < 400 else 1)"
