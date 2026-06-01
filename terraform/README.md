@@ -29,7 +29,7 @@ cp terraform.tfvars.example terraform.tfvars
 ```hcl
 aws_region          = "us-west-1"
 environment         = "prod"
-admin_password      = "your_secure_password"
+admin_api_key       = "your_secure_api_key"
 ses_sender_email    = "noreply@onpointgaragedoors.com"
 ses_recipient_email = "info@onpointgaragedoors.com"
 ```
@@ -104,7 +104,6 @@ Terraform does NOT deploy your code automatically - use the `deploy.sh` script f
 - `lambda.tf` - Lambda function
 - `api_gateway.tf` - API Gateway configuration
 - `cloudfront.tf` - CloudFront distribution
-- `ses.tf` - SES configuration (placeholder)
 
 ## Clean Up
 

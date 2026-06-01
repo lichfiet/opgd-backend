@@ -35,7 +35,18 @@ resource "aws_cloudfront_distribution" "main" {
 
     forwarded_values {
       query_string = true
-      headers      = ["Authorization", "Accept", "Content-Type"]
+      # Matches the live distribution (headers were added in the console to fix
+      # CORS: FastAPI needs Origin/Access-Control-* forwarded to answer preflight).
+      headers = [
+        "Authorization",
+        "Origin",
+        "Accept",
+        "Access-Control-Request-Method",
+        "Access-Control-Allow-Origin",
+        "Access-Control-Request-Headers",
+        "Accept-Encoding",
+        "Content-Type",
+      ]
 
       cookies {
         forward = "all"

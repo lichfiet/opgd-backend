@@ -1,8 +1,17 @@
-# Copy this file to terraform.tfvars and fill in your values
+# Copy this file to terraform.tfvars and fill in your values.
+# terraform.tfvars is gitignored — never commit real secrets.
 
 aws_region          = "us-west-1"
 environment         = "prod"
-admin_password      = "your_secure_password_here"
+
+# Admin key for authenticated API endpoints (sent by clients as the X-API-KEY header).
+admin_api_key       = "your_secure_api_key_here"
+
 ses_sender_email    = "noreply@onpointgaragedoors.com"
-ses_recipient_email   = "info@onpointgaragedoors.com"
-recaptcha_secret_key  = ""  # reCAPTCHA v3 secret from https://www.google.com/recaptcha/admin (leave empty to disable)
+ses_recipient_email = "info@onpointgaragedoors.com"
+
+# Optional. CloudFront domain used to build public image URLs (leave empty to use direct S3 URLs).
+cloudfront_domain   = ""
+
+# Optional. reCAPTCHA v3 secret from https://www.google.com/recaptcha/admin (leave empty to disable verification).
+recaptcha_secret_key = ""

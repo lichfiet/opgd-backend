@@ -16,3 +16,10 @@ terraform {
 provider "aws" {
   region = var.aws_region
 }
+
+# us-east-1 alias — required for anything CloudFront consumes globally:
+# ACM certificates and CLOUDFRONT-scoped WAF lookups must live/be queried there.
+provider "aws" {
+  alias  = "us_east_1"
+  region = "us-east-1"
+}
