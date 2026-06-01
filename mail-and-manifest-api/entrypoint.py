@@ -55,14 +55,14 @@ server.include_router(routes.router)
 logger.info(server.routes)
 
 @server.get("/health")
-def health() -> Response:
+def health() -> dict:
     """
     Health check endpoint.
 
     Returns:
         dict: Simple message confirming API is operational
     """
-    return Response({"status": "OK"}) 
+    return {"status": "OK"}
 
 #
 # Test Server Starting
