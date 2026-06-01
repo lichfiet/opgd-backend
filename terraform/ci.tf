@@ -93,7 +93,10 @@ output "ci_role_arn" {
 variable "github_web_repo" {
   description = "GitHub repo (owner/name) for the web frontend"
   type        = string
-  default     = "lichfiet/opgd-web"
+  # NOTE: the repo's actual name on GitHub is onpointgaragedoors (renamed from
+  # opgd-web; the old remote URL still redirects). OIDC sub claims use the real
+  # name, so the trust policy must too.
+  default     = "lichfiet/onpointgaragedoors"
 }
 
 data "aws_iam_policy_document" "web_ci_trust" {
