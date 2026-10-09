@@ -7,9 +7,7 @@ resource "aws_api_gateway_rest_api" "api" {
   }
 
   tags = {
-    Name        = "OPGD API Gateway"
-    Environment = var.environment
-    Project     = "On Point Garage Doors"
+    Name = "OPGD API Gateway"
   }
 }
 
@@ -188,9 +186,7 @@ resource "aws_api_gateway_stage" "api" {
   stage_name    = var.environment
 
   tags = {
-    Name        = "OPGD API Stage"
-    Environment = var.environment
-    Project     = "On Point Garage Doors"
+    Name = "OPGD API Stage"
   }
 }
 

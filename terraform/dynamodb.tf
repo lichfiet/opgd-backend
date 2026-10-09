@@ -9,8 +9,6 @@ resource "aws_dynamodb_table" "images_content" {
   }
 
   tags = {
-    Name        = "OPGD Images Content"
-    Environment = var.environment
-    Project     = "On Point Garage Doors"
+    Name = "OPGD Images Content"
   }
 }

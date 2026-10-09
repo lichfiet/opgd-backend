@@ -2,9 +2,7 @@ resource "aws_s3_bucket" "images_content" {
   bucket = "opgd-images-content-${var.environment}"
 
   tags = {
-    Name        = "OPGD Images Content"
-    Environment = var.environment
-    Project     = "On Point Garage Doors"
+    Name = "OPGD Images Content"
   }
 }
 

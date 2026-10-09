@@ -57,9 +57,7 @@ resource "aws_acm_certificate" "site" {
   }
 
   tags = {
-    Name        = "OPGD Web Site Certificate"
-    Environment = var.environment
-    Project     = "On Point Garage Doors"
+    Name = "OPGD Web Site Certificate"
   }
 }
 
@@ -92,9 +90,7 @@ resource "aws_s3_bucket" "site" {
   bucket = "opgd-web-site-${var.environment}"
 
   tags = {
-    Name        = "OPGD Web Site"
-    Environment = var.environment
-    Project     = "On Point Garage Doors"
+    Name = "OPGD Web Site"
   }
 }
 
@@ -206,9 +202,7 @@ resource "aws_cloudfront_distribution" "site" {
   }
 
   tags = {
-    Name        = "OPGD Web Site Distribution"
-    Environment = var.environment
-    Project     = "On Point Garage Doors"
+    Name = "OPGD Web Site Distribution"
   }
 }
 

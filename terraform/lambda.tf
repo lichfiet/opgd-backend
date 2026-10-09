@@ -29,8 +29,6 @@ resource "aws_cloudwatch_log_group" "lambda_logs" {
   retention_in_days = 7
 
   tags = {
-    Name        = "OPGD Lambda Logs"
-    Environment = var.environment
-    Project     = "On Point Garage Doors"
+    Name = "OPGD Lambda Logs"
   }
 }

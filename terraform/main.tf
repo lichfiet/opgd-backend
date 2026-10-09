@@ -13,8 +13,17 @@ terraform {
   }
 }
 
+# The account is shared with other workloads; Project is the key Cost
+# Explorer splits spend on, so it rides default_tags onto every resource.
 provider "aws" {
   region = var.aws_region
+
+  default_tags {
+    tags = {
+      Project     = "opgd"
+      Environment = var.environment
+    }
+  }
 }
 
 # us-east-1 alias — required for anything CloudFront consumes globally:
@@ -22,4 +31,11 @@ provider "aws" {
 provider "aws" {
   alias  = "us_east_1"
   region = "us-east-1"
+
+  default_tags {
+    tags = {
+      Project     = "opgd"
+      Environment = var.environment
+    }
+  }
 }

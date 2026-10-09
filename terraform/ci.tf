@@ -50,9 +50,7 @@ resource "aws_iam_role" "ci" {
   max_session_duration = 3600
 
   tags = {
-    Name        = "OPGD CI Role"
-    Environment = var.environment
-    Project     = "On Point Garage Doors"
+    Name = "OPGD CI Role"
   }
 }
 
@@ -130,9 +128,7 @@ resource "aws_iam_role" "web_ci" {
   max_session_duration = 3600
 
   tags = {
-    Name        = "OPGD Web CI Role"
-    Environment = var.environment
-    Project     = "On Point Garage Doors"
+    Name = "OPGD Web CI Role"
   }
 }
 

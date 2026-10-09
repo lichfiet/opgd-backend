@@ -16,9 +16,7 @@ resource "aws_iam_role" "lambda_role" {
   })
 
   tags = {
-    Name        = "OPGD Lambda Role"
-    Environment = var.environment
-    Project     = "On Point Garage Doors"
+    Name = "OPGD Lambda Role"
   }
 }
 

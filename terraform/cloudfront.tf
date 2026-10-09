@@ -91,8 +91,6 @@ resource "aws_cloudfront_distribution" "main" {
   }
 
   tags = {
-    Name        = "OPGD CloudFront Distribution"
-    Environment = var.environment
-    Project     = "On Point Garage Doors"
+    Name = "OPGD CloudFront Distribution"
   }
 }
