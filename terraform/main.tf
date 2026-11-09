@@ -1,5 +1,14 @@
 terraform {
-  required_version = ">= 1.0"
+  required_version = ">= 1.11"
+
+  # Shared state bucket, owned by lichfiet/shared-infra (README, "State").
+  backend "s3" {
+    bucket       = "tfstate-349654078389"
+    key          = "opgd/terraform.tfstate"
+    region       = "us-east-1"
+    encrypt      = true
+    use_lockfile = true
+  }
 
   required_providers {
     aws = {

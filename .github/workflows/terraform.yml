@@ -1,7 +1,7 @@
 name: terraform-checks
 
 # Static Terraform checks on PRs / pushes touching infra. No AWS credentials —
-# state is local, so plan/apply stay manual on the maintainer's machine.
+# state is in the shared S3 bucket, and plan/apply stay manual on the maintainer's machine.
 
 on:
   push:
